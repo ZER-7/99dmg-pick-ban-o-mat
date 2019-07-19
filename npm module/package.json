@@ -1,0 +1,11 @@
+{
+  "name": "99dmgapi",
+  "version": "1.9.99",
+  "description": "Gets team and league data from the 99dmg website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,298 @@
+﻿<controls:MetroWindow
+    x:Class="PickBan_o_mat.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:mt="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:converter="clr-namespace:PickBan_o_mat.Converter"
+    mc:Ignorable="d"
+    Background="{DynamicResource MaterialDesignPaper}"
+    Title="PICK-BAN-O-MAT" Height="1000" Width="1120">
+    <controls:MetroWindow.Resources>
+        <converter:T1ToColor x:Key="TeamConverter" />
+        <converter:AntiT1ToColor x:Key="AntiTeamConverter" />
+        <converter:BoolToVisible x:Key="Bool2V" />
+        <converter:InvertBool x:Key="IBool" />
+        <converter:InvertVisibleToBool x:Key="IVis2B" />
+    </controls:MetroWindow.Resources>
+    <Grid>
+        <mt:Card Background="{DynamicResource MaterialDesignPaper}" Margin="10,10,0,0"
+                 mt:ShadowAssist.ShadowDepth="Depth2" HorizontalAlignment="Left" Width="1100">
+            <StackPanel Orientation="Vertical">
+                <!--Team selection-->
+                <mt:Card Margin="10,10,10,10"
+                         Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Left"
+                         Width="1100">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Width="20" />
+                            <TextBox
+                                mt:HintAssist.Hint="Team Name"
+                                IsReadOnly="True"
+                                Style="{DynamicResource MaterialDesignTextBox}"
+                                FontSize="30" FontWeight="Bold"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                Text="{Binding Path=TeamName,UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Width="40" />
+                            <TextBox Margin="10,10,10,10"
+                                     mt:HintAssist.Hint="team url"
+                                     mt:HintAssist.Foreground="Green"
+                                     mt:TextFieldAssist.UnderlineBrush="Green"
+                                     IsReadOnly="{Binding Path=IsWorking,UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding TeamUrl,UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <ProgressBar
+                            IsIndeterminate="True"
+                            Visibility="{Binding Path=LookingForTeams, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource Bool2V}}" />
+                        <Label Height="3" />
+                        <Border
+                            Background="{DynamicResource MaterialDesignDivider}"
+                            Height="1"
+                            HorizontalAlignment="Stretch"
+                            SnapsToDevicePixels="True" />
+                        <ToolBarTray IsEnabled="True"
+                                     Visibility="{Binding Path=LookingForTeams,Converter={StaticResource IVis2B},FallbackValue=Collapsed,UpdateSourceTrigger=PropertyChanged}">
+                            <ToolBar
+                                Width="1100"
+                                IsEnabled="{Binding Path=IsWorking, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource IBool}}"
+                                Style="{DynamicResource MaterialDesignToolBar}"
+                                Visibility="{Binding Path=LookingForTeams,Converter={StaticResource IVis2B},FallbackValue=Collapsed,UpdateSourceTrigger=PropertyChanged}"
+                                ClipToBounds="True" Margin="-3,0,0,0">
+                                <ListBox
+                                    SelectedItem="{Binding SelectedTeam,UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedIndex="{Binding SelectedMatch, UpdateSourceTrigger=PropertyChanged,FallbackValue=0,Mode=TwoWay}"
+                                    ItemsSource="{Binding ThisSeasonOpponents, UpdateSourceTrigger=PropertyChanged}" />
+                            </ToolBar>
+                        </ToolBarTray>
+                    </StackPanel>
+                </mt:Card>
+                <Label Height="32" />
+                <!--PICK BAN SIM-->
+                <mt:Card
+                    Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Left" Width="1100">
+                    <StackPanel>
+                        <ProgressBar IsIndeterminate="True" Value="30"
+                                     Visibility="{Binding Path=IsWorking,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Bool2V}}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding Path=IsWorking, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource IVis2B}}">
+                            <StackPanel Orientation="Vertical">
+                                <!--UPPER TEAM-->
+                                <ToolBarTray IsEnabled="True" Width="1100">
+                                    <ToolBar Focusable="False"
+                                             Style="{DynamicResource MaterialDesignToolBar}"
+                                             Width="1200"
+                                             ClipToBounds="True" Margin="-27,-1,0,0">
+                                        <ListBox Focusable="False">
+                                            <ListBoxItem Focusable="False">
+                                                <Label
+                                                    Content="{Binding UpperTeamName,UpdateSourceTrigger=PropertyChanged}"
+                                                    FontSize="20" FontWeight="DemiBold" Width="100"
+                                                    Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,
+                                                    Converter={StaticResource ResourceKey=TeamConverter}}" />
+                                            </ListBoxItem>
+                                        </ListBox>
+
+                                        <Separator />
+                                        <Label Content="Ban" FontWeight="DemiBold" FontSize="20"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                        <Separator />
+                                        <ListBox Focusable="False">
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T1Ban1,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=TeamConverter}}" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Square" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Square" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T1Ban2,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=TeamConverter}}" />
+                                            </ListBoxItem>
+                                        </ListBox>
+                                        <Separator />
+                                        <Label Content="Pick" FontWeight="DemiBold" FontSize="20"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                        <Separator />
+
+                                        <ListBox Focusable="False">
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Eye" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T1Pick1,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=TeamConverter}}" />
+                                            </ListBoxItem>
+
+                                        </ListBox>
+
+                                    </ToolBar>
+                                </ToolBarTray>
+                                <Border
+                                    Background="{DynamicResource MaterialDesignDivider}"
+                                    Height="1"
+                                    HorizontalAlignment="Stretch"
+                                    SnapsToDevicePixels="True" />
+                                <!--LOWER TEAM-->
+                                <ToolBarTray Width="1148">
+                                    <ToolBar
+                                        Style="{DynamicResource MaterialDesignToolBar}"
+                                        Width="1200"
+                                        ClipToBounds="False" Margin="-3,0,0,0">
+                                        <ListBox
+                                            Focusable="False">
+                                            <ListBoxItem>
+                                                <Label
+                                                    Content="{Binding LowerTeamName,UpdateSourceTrigger=PropertyChanged}"
+                                                    FontSize="20" FontWeight="DemiBold" Width="100"
+                                                    Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=AntiTeamConverter}}" />
+                                            </ListBoxItem>
+                                        </ListBox>
+                                        <Separator />
+                                        <Label Content="Ban" FontWeight="DemiBold" FontSize="20"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                        <Separator />
+                                        <ListBox Focusable="False">
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Square" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T2Ban1,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=AntiTeamConverter}}" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T2Ban2,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=AntiTeamConverter}}" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Square" />
+                                            </ListBoxItem>
+                                        </ListBox>
+                                        <Separator />
+                                        <Label Content="Pick" FontWeight="DemiBold" FontSize="20"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                        <Separator />
+
+                                        <ListBox Focusable="False">
+                                            <ListBoxItem>
+                                                <Label Content="{Binding T2Pick1,UpdateSourceTrigger=PropertyChanged}"
+                                                       Width="90"
+                                                       Foreground="{Binding Path=IsT1,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource ResourceKey=AntiTeamConverter}}" />
+                                            </ListBoxItem>
+                                            <ListBoxItem>
+                                                <mt:PackIcon Width="90"
+                                                             Kind="Eye" />
+                                            </ListBoxItem>
+                                        </ListBox>
+                                    </ToolBar>
+                                </ToolBarTray>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                </mt:Card>
+
+                <Label Height="32" />
+                <!--DATA input-->
+                <mt:Card
+                    Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Left" Width="1100">
+                    <StackPanel>
+                        <ProgressBar IsIndeterminate="True" Value="30"
+                                     Visibility="{Binding Path=IsWorking,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Bool2V}}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding Path=IsWorking,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource IVis2B}}">
+                            <Label Width="20" />
+                            <Button
+                                Command="{Binding Path=StartPickBanCommand}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                                Background="{DynamicResource PrimaryHueDarkBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueDarkBrush}"
+                                VerticalAlignment="Top" Margin="0,10,0,0">
+                                <mt:PackIcon Kind="Atom" Width="40" Height="40" />
+                            </Button>
+                            <Label Width="20" />
+                            <StackPanel Width="1010">
+                                <Expander
+                                    HorizontalAlignment="Stretch"
+                                    Header="Starting as Team 1">
+                                    <StackPanel
+                                        Orientation="Vertical"
+                                        TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
+                                        Margin="24,8,48,16">
+                                        <TextBlock
+                                            Text="Enter pick/ban data here:" />
+                                        <TextBox
+                                            Text="{Binding Path=T1Text,FallbackValue='T1 bans de_mirage, T2 bans de_overpass, T2 bans de_nuke, T1 bans de_dust2, T2 picks de_inferno, T1 picks de_train'}"
+                                            Height="120"
+                                            TextWrapping="Wrap" AcceptsReturn="True" />
+                                    </StackPanel>
+                                </Expander>
+                                <Border
+                                    Background="{DynamicResource MaterialDesignDivider}"
+                                    Height="1"
+                                    HorizontalAlignment="Stretch"
+                                    SnapsToDevicePixels="True" />
+                                <Expander
+                                    HorizontalAlignment="Stretch"
+                                    Header="Starting as Team 2">
+                                    <StackPanel
+                                        Orientation="Vertical"
+                                        TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
+                                        Margin="24,8,48,16">
+                                        <TextBlock
+                                            Text="Enter pick/ban data here:" />
+                                        <TextBox Text="{Binding Path=T2Text}" Height="120"
+                                                 TextWrapping="Wrap" AcceptsReturn="True" />
+                                    </StackPanel>
+                                </Expander>
+                                <Border
+                                    Background="{DynamicResource MaterialDesignDivider}"
+                                    Height="1"
+                                    HorizontalAlignment="Stretch"
+                                    SnapsToDevicePixels="True" />
+                                <Expander
+                                    HorizontalAlignment="Stretch"
+                                    Header="Raw Results">
+                                    <StackPanel
+                                        Orientation="Vertical"
+                                        TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
+                                        Margin="24,8,48,16">
+                                        <TextBlock
+                                            Text="Results :" />
+                                        <TextBox Text="{Binding Path=ResultText}" Height="150"
+                                                 TextWrapping="Wrap" AcceptsReturn="True" />
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </mt:Card>
+            </StackPanel>
+        </mt:Card>
+        <mt:Snackbar MessageQueue="{Binding MessageQueue,UpdateSourceTrigger=PropertyChanged}"
+                     HorizontalAlignment="Stretch"
+                     FontSize="34"
+                     VerticalAlignment="Bottom"
+                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                     Width="1100" Height="80" />
+    </Grid>
+</controls:MetroWindow>

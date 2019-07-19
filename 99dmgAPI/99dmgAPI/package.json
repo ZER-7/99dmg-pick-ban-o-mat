@@ -1,0 +1,22 @@
+{
+  "name": "nndmg-api",
+  "version": "0.8.0",
+  "description": "nndmg",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "scripts": {
+    "run": "node app.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.0",
+    "underscore": "^1.9.1"
+  },
+  "-vs-binding": {
+    "AfterBuild": [
+      "run"
+    ]
+  }
+}
