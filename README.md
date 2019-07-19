@@ -26,6 +26,7 @@ Whenever I got time and agree with the proposed changes. Time is Money, so donat
 
 ## What changes are currently planned ?
 Playoff support
+
 Better suggestions 
 
 ## I like the tool! How can I show my affection ?
