@@ -163,7 +163,7 @@ namespace PickBan_o_mat
                 results += oPick + Space;
                 results += oBan + Space;
                 results += oPool + Space;
-                results += relValue.ToString().PadLeft(3,'+');
+                results += relValue.ToString().PadLeft(3);
                 ResultText += results + Environment.NewLine;
                 results = "";
             }
