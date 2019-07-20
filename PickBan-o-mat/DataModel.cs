@@ -69,7 +69,7 @@ namespace PickBan_o_mat
         }
 
         internal List<string> SimulatePickBan(bool ist1, List<KeyValuePair<Map, int>> ourPool, bool clever = true,
-            Strategy withThisStrategy = Strategy.RelativeStrength)
+            Strategy withThisStrategy = Strategy.Default)
         {
             List<string> result;
             List<Map> pool = new List<Map>(ourPool.Select(s => s.Key));
@@ -114,50 +114,44 @@ namespace PickBan_o_mat
             return result;
         }
 
-        public static Dictionary<Map, int> GetRelativeStrenght(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
+        public static Dictionary<Map, int> GetRelativeStrength(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
             IReadOnlyCollection<KeyValuePair<Map, int>> nmePool, bool starting = true)
+        {
+            return GetDeltas(ourPool,nmePool).OrderBy(s => s.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        private static List<KeyValuePair<Map, int>> GetDeltas(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
+            IReadOnlyCollection<KeyValuePair<Map, int>> nmePool)
         {
             List<KeyValuePair<Map, int>> deltas = new List<KeyValuePair<Map, int>>();
 
             foreach (Map map in ourPool.Select(s => s.Key).ToList())
             {
-                deltas.Add(
-                    new KeyValuePair<Map, int>(
-                        map,
-                        ourPool.First(l => l.Key == map).Value -
-                        nmePool.First(l => l.Key == map).Value));
+                int difference = Math.Abs(ourPool.First(l => l.Key == map).Value) -
+                                 Math.Abs(nmePool.First(l => l.Key == map).Value);
+                bool theyBetter = ourPool.First(l => l.Key == map).Value <= nmePool.First(l => l.Key == map).Value;
+                if (theyBetter)
+                {
+                    difference *= -1;
+                }
+
+                deltas.Add(new KeyValuePair<Map, int>(map, difference));
             }
 
-            return deltas.OrderBy(s => s.Value).ToDictionary(x => x.Key, x => x.Value);
+            return deltas;
         }
 
         private static List<string> DoRelativeStrengthPickBan(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
             IReadOnlyCollection<KeyValuePair<Map, int>> nmePool, bool starting = true)
         {
-            List<KeyValuePair<Map, int>> deltas = new List<KeyValuePair<Map, int>>();
-
-            foreach (Map map in ourPool.Select(s => s.Key).ToList())
-            {
-                deltas.Add(
-                    new KeyValuePair<Map, int>(
-                        map,
-                        ourPool.First(l => l.Key == map).Value -
-                        nmePool.First(l => l.Key == map).Value));
-            }
-
-            Debug.WriteLine("Relative strength :");
-            foreach (KeyValuePair<Map, int> item in deltas.OrderBy(s => s.Value))
-            {
-                Debug.WriteLine($"{item.Key} | {item.Value}");
-            }
+            List<KeyValuePair<Map, int>> deltas = GetDeltas(ourPool, nmePool).OrderByDescending(s => s.Value).ToList();
 
             List<string> result = new List<string>();
-            deltas = deltas.OrderBy(s => s.Value).ToList();
 
             //nme removes the top 2
             // we remove bot 2
 
-            if (!starting)
+            if (starting)
             {
                 result.Add(deltas[0].Key.ToString());
 

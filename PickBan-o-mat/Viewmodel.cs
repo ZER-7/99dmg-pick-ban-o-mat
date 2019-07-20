@@ -138,7 +138,7 @@ namespace PickBan_o_mat
             Dictionary<Map, int> bans = _dm.Get(DecisionType.Ban);
             Dictionary<Map, int> pick = _dm.Get(DecisionType.Pick);
             Dictionary<Map, int> pool = _dm.GetMapHierachy();
-            Dictionary<Map, int> rel = DataModel.GetRelativeStrenght(_ourMapPool, pool, IsT1);
+            Dictionary<Map, int> rel = DataModel.GetRelativeStrength(_ourMapPool, pool);
 
             List<Map> mapPool = rel.OrderByDescending(x => x.Value).Select(s => s.Key).ToList();
 
