@@ -69,7 +69,7 @@ namespace PickBan_o_mat
         }
 
         internal List<string> SimulatePickBan(bool ist1, List<KeyValuePair<Map, int>> ourPool, bool clever = true,
-            Strategy withThisStrategy = Strategy.Default)
+            Strategy withThisStrategy = Strategy.RelativeStrength)
         {
             List<string> result;
             List<Map> pool = new List<Map>(ourPool.Select(s => s.Key));
@@ -114,6 +114,23 @@ namespace PickBan_o_mat
             return result;
         }
 
+        public static Dictionary<Map, int> GetRelativeStrenght(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
+            IReadOnlyCollection<KeyValuePair<Map, int>> nmePool, bool starting = true)
+        {
+            List<KeyValuePair<Map, int>> deltas = new List<KeyValuePair<Map, int>>();
+
+            foreach (Map map in ourPool.Select(s => s.Key).ToList())
+            {
+                deltas.Add(
+                    new KeyValuePair<Map, int>(
+                        map,
+                        ourPool.First(l => l.Key == map).Value -
+                        nmePool.First(l => l.Key == map).Value));
+            }
+
+            return deltas.OrderBy(s => s.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
         private static List<string> DoRelativeStrengthPickBan(IReadOnlyCollection<KeyValuePair<Map, int>> ourPool,
             IReadOnlyCollection<KeyValuePair<Map, int>> nmePool, bool starting = true)
         {
@@ -128,7 +145,7 @@ namespace PickBan_o_mat
                         nmePool.First(l => l.Key == map).Value));
             }
 
-            Debug.WriteLine("Relative strenght :");
+            Debug.WriteLine("Relative strength :");
             foreach (KeyValuePair<Map, int> item in deltas.OrderBy(s => s.Value))
             {
                 Debug.WriteLine($"{item.Key} | {item.Value}");
@@ -140,7 +157,7 @@ namespace PickBan_o_mat
             //nme removes the top 2
             // we remove bot 2
 
-            if (starting)
+            if (!starting)
             {
                 result.Add(deltas[0].Key.ToString());
 

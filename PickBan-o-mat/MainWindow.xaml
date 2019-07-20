@@ -40,7 +40,7 @@
                                      mt:HintAssist.Hint="team url"
                                      mt:HintAssist.Foreground="Green"
                                      mt:TextFieldAssist.UnderlineBrush="Green"
-                                     IsReadOnly="{Binding Path=IsWorking,UpdateSourceTrigger=PropertyChanged}"
+                                     IsReadOnly="{Binding Path=ValidUrl,UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      Text="{Binding TeamUrl,UpdateSourceTrigger=PropertyChanged}" />
                         </StackPanel>
@@ -72,6 +72,7 @@
                 <Label Height="32" />
                 <!--PICK BAN SIM-->
                 <mt:Card
+                    Visibility="{Binding Path=WaitingForTeam, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Bool2V}}"
                     Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Left" Width="1100">
                     <StackPanel>
                         <ProgressBar IsIndeterminate="True" Value="30"
@@ -214,6 +215,7 @@
                 <Label Height="32" />
                 <!--DATA input-->
                 <mt:Card
+                    Visibility="{Binding Path=WaitingForTeam, UpdateSourceTrigger=PropertyChanged,Converter={StaticResource Bool2V}}"
                     Background="{DynamicResource MaterialDesignBackground}" HorizontalAlignment="Left" Width="1100">
                     <StackPanel>
                         <ProgressBar IsIndeterminate="True" Value="30"

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -14,12 +15,14 @@ namespace PickBan_o_mat
     internal class Viewmodel : INotifyPropertyChanged
     {
         private const string Space = "\t";
+        private const string TEAMURL_FILE_PATH = "\\" + "RememberTeamURL.txt";
 
         public Viewmodel()
         {
             _dm = new DataModel();
 
             Init();
+            this.LoadUrl();
 
             _ourMapPool = new List<KeyValuePair<Map, int>>
             {
@@ -53,17 +56,48 @@ namespace PickBan_o_mat
 
         }
 
+        private void LoadUrl()
+        {
+            string file = Directory.GetCurrentDirectory() + TEAMURL_FILE_PATH;
+            if (File.Exists(file))
+            {
+                using (StreamReader reader = new StreamReader(file))
+                {
+                    TeamUrl = reader.ReadLine();
+                    ValidUrl = true;
+                }
+            }
+        }
+
+        private void SaveUrl()
+        {
+            try
+            {
+                string file = Directory.GetCurrentDirectory() + TEAMURL_FILE_PATH;
+                using (StreamWriter writer = new StreamWriter(file))
+                {
+                    writer.Write(TeamUrl);
+                }
+            }
+            catch (IOException)
+            {
+
+            }
+        }
+
         private void Init()
         {
-            TeamName = "not set";
-            SelectedMatch = 0;
-            TeamUrl = @"https://csgo.99damage.de/de/leagues/teams/69679-neinzge-tactics";
-            T1Text = "";
-            T2Text = "";
-
             IsT1 = true;
             IsWorking = true;
             LookingForTeams = true;
+            ValidUrl = false;
+            WaitingForTeam = false;
+
+            TeamName = "not set";
+            SelectedMatch = 0;
+            TeamUrl = "";
+            T1Text = "";
+            T2Text = "";
 
             T1Ban1 = "mirage";
             T1Ban2 = "vertigo";
@@ -72,7 +106,7 @@ namespace PickBan_o_mat
             T2Pick1 = "inferno";
             T1Pick1 = "train";
 
-            UpperTeamName = "9zG";
+            UpperTeamName = "T1";
             LowerTeamName = "T2";
 
             MessageQueue = new SnackbarMessageQueue();
@@ -104,12 +138,12 @@ namespace PickBan_o_mat
             Dictionary<Map, int> bans = _dm.Get(DecisionType.Ban);
             Dictionary<Map, int> pick = _dm.Get(DecisionType.Pick);
             Dictionary<Map, int> pool = _dm.GetMapHierachy();
+            Dictionary<Map, int> rel = DataModel.GetRelativeStrenght(_ourMapPool, pool, IsT1);
 
-            List<KeyValuePair<Map, int>> sortedPick = pick.OrderByDescending(x => x.Value).ToList();
-            List<Map> mapPool = sortedPick.Select(s => s.Key).ToList();
+            List<Map> mapPool = rel.OrderByDescending(x => x.Value).Select(s => s.Key).ToList();
 
             string results = "";
-            string banner = "Map \t\tP\tB\tPool" + Environment.NewLine + "==========================" + Environment.NewLine;
+            string banner = "Map \t\tP\tB\tPool\tRel" + Environment.NewLine + "==================================" + Environment.NewLine;
             ResultText = banner;
             Debug.WriteLine(banner);
             foreach (Map item in mapPool)
@@ -117,6 +151,7 @@ namespace PickBan_o_mat
                 bans.TryGetValue(item, out int oBan);
                 pick.TryGetValue(item, out int oPick);
                 pool.TryGetValue(item, out int oPool);
+                rel.TryGetValue(item, out int relValue);
 
                 results += item + Space;
                 if (item != Map.Overpass)
@@ -127,7 +162,8 @@ namespace PickBan_o_mat
 
                 results += oPick + Space;
                 results += oBan + Space;
-                results += oPool.ToString();
+                results += oPool + Space;
+                results += relValue.ToString().PadLeft(3,'+');
                 ResultText += results + Environment.NewLine;
                 results = "";
             }
@@ -157,6 +193,22 @@ namespace PickBan_o_mat
         {
             get => _isWorking;
             set => SetField(ref _isWorking, value);
+        }
+
+        private bool _WaitingForTeam;
+
+        public bool WaitingForTeam
+        {
+            get => _WaitingForTeam;
+            set => SetField(ref _WaitingForTeam, value);
+        }
+
+        private bool _validUrl;
+
+        public bool ValidUrl
+        {
+            get => _validUrl;
+            set => SetField(ref _validUrl, value);
         }
 
         private Dictionary<string, Tuple<int, bool>> _matchTeamIsT1Table;
@@ -194,9 +246,13 @@ namespace PickBan_o_mat
         private void ChangeT1(ref string teamUrl, string value)
         {
             SetField(ref teamUrl, value);
-            if (true)
+            if (value !="")
             {
                 UpdateTeam();
+            }
+            else
+            {
+                ValidUrl = false;
             }
         }
 
@@ -362,10 +418,9 @@ namespace PickBan_o_mat
 
         private async void UpdateTeam()
         {
+
             // get the teamName
-            string temp = TeamUrl.Substring(TeamUrl.LastIndexOf('/') + 1);
-            LookingForTeams = true;
-            IsWorking = true;
+            string temp = this.SetTeam();
 
             try
             {
@@ -429,6 +484,18 @@ namespace PickBan_o_mat
                 LookingForTeams = false;
                 IsWorking = false;
             }
+        }
+
+        private string SetTeam()
+        {
+            LookingForTeams = true;
+            IsWorking = true;
+            ValidUrl = true;
+            WaitingForTeam = true;
+
+            this.SaveUrl();
+
+            return TeamUrl.Substring(TeamUrl.LastIndexOf('/') + 1);
         }
 
         /// <summary>
@@ -540,6 +607,8 @@ namespace PickBan_o_mat
             _dm.SetPickBanData(T1Text, T2Text);
 
             StartPickBanCommand.Execute(new object());
+
+            ValidUrl = false;
         }
 
         private static string GetPickBanBlock(IEnumerable<string> temp)
