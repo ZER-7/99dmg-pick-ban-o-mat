@@ -1,11 +1,16 @@
 {
   "name": "99dmgapi",
-  "version": "1.9.99",
+  "version": "2.0.0",
   "description": "Gets team and league data from the 99dmg website",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.0",
+    "underscore": "^1.9.1"
+  },
+  "author": "ZER7",
   "license": "ISC"
 }
